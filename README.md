@@ -15,7 +15,21 @@ A production-ready, feature-rich movie booking platform built with **React 18 + 
 - 💳 Payment with coupon codes & multiple payment methods
 - 📋 Booking history with cancellation and post-show ratings
 - 🔍 Real-time search across movies, cast, genre, director
+
+
 - 👤 User dashboard with membership level & activity
+- 🧊 2D & 3D Seat Visualization
+🖥️ 2D theatre map for quick selection
+🎮 Immersive 3D cinema hall view
+🎥 Realistic seating arrangement like a real theatre
+🔄 Rotate / zoom / explore seats in 3D mode
+🎬 Screen positioning with correct viewing angles
+
+👥 Community & Social Features
+💬 Real-time messaging between users
+🎉 Movie discussion rooms / chat groups
+👤 User profiles and activity feed
+⭐ Share seat selection and movie experience
 
 ### ⚙️ Admin Features
 - 🎬 Full movie CRUD with image upload (poster + banner + cast photos)
