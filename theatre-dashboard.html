@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CineControl – Theatre Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050508;
+  --bg2:#0a0a12;
+  --bg3:#0f0f1a;
+  --glass:rgba(255,255,255,0.04);
+  --glass-border:rgba(255,215,0,0.15);
+  --gold:#ffd700;
+  --gold2:#ffaa00;
+  --purple:#7c3aed;
+  --purple2:#a855f7;
+  --red:#dc143c;
+  --red2:#ff3366;
+  --text:#f0f0ff;
+  --muted:rgba(240,240,255,0.45);
+  --card-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 0 1px var(--glass-border);
+  --glow-gold:0 0 20px rgba(255,215,0,0.25);
+  --glow-purple:0 0 20px rgba(124,58,237,0.3);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;background-image:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(124,58,237,0.08) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(220,20,60,0.05) 0%,transparent 50%)}
+
+/* SIDEBAR */
+.sidebar{width:72px;min-height:100vh;background:rgba(10,10,18,0.95);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:6px;position:relative;z-index:100;flex-shrink:0}
+.sidebar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,var(--gold),var(--purple),transparent);opacity:.6}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;color:#000;margin-bottom:24px;box-shadow:0 0 20px rgba(255,215,0,0.4)}
+.nav-item{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .3s;color:var(--muted);font-size:18px}
+.nav-item:hover,.nav-item.active{color:var(--gold);background:rgba(255,215,0,0.08);box-shadow:var(--glow-gold)}
+.nav-item.active::after{content:'';position:absolute;right:-13px;top:50%;transform:translateY(-50%);width:3px;height:24px;background:var(--gold);border-radius:2px;box-shadow:0 0 8px var(--gold)}
+.nav-item .tooltip{position:absolute;left:60px;background:rgba(10,10,18,0.95);border:1px solid var(--glass-border);padding:6px 10px;border-radius:8px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;color:var(--text)}
+.nav-item:hover .tooltip{opacity:1}
+.sidebar-spacer{flex:1}
+
+/* LAYOUT */
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+header{height:64px;background:rgba(10,10,18,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.header-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold);letter-spacing:2px;margin-right:auto}
+.header-title span{color:var(--muted);font-size:11px;display:block;font-family:'Inter',sans-serif;letter-spacing:1px;margin-top:2px}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:8px 14px;width:220px;transition:.3s}
+.search-bar:focus-within{border-color:var(--gold);box-shadow:var(--glow-gold)}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%}
+.search-bar i{color:var(--muted);font-size:13px}
+.header-icon{width:38px;height:38px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:14px;transition:.3s;position:relative}
+.header-icon:hover{color:var(--gold);border-color:var(--gold);box-shadow:var(--glow-gold)}
+.badge{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red2);border-radius:50%;box-shadow:0 0 8px var(--red2)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--purple2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:2px solid var(--purple2);cursor:pointer;box-shadow:0 0 16px rgba(168,85,247,0.4)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto auto auto;gap:16px;align-content:start}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:rgba(255,215,0,.2);border-radius:2px}
+
+/* CARDS */
+.card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px;padding:20px;box-shadow:var(--card-shadow);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.7),0 0 0 1px rgba(255,215,0,.25),var(--glow-gold)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.3),transparent)}
+
+/* METRIC CARDS */
+.metric-card{grid-column:span 1}
+.metric-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.metric-val{font-size:26px;font-weight:800;font-family:'Orbitron',sans-serif;letter-spacing:-1px}
+.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
+.metric-change{font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px}
+.metric-change.up{color:#22c55e}
+.metric-change.down{color:var(--red2)}
+
+/* SPARKLINE */
+.sparkline{height:32px;margin-top:10px}
+.sparkline svg{width:100%;height:100%}
+
+/* REVENUE CHART */
+.revenue-card{grid-column:span 2;grid-row:span 1}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--gold)}
+.tabs{display:flex;gap:4px}
+.tab{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;color:var(--muted);transition:.2s}
+.tab.active{background:rgba(255,215,0,.1);border-color:var(--gold);color:var(--gold)}
+.chart-area{height:160px;position:relative}
+#revenueChart{width:100%;height:100%}
+
+/* SEAT MAP */
+.seat-card{grid-column:span 2}
+.seat-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;margin-top:14px}
+.seat{width:100%;aspect-ratio:1;border-radius:3px;cursor:pointer;transition:.2s}
+.seat.available{background:rgba(34,197,94,.25);border:1px solid rgba(34,197,94,.4)}
+.seat.occupied{background:rgba(255,215,0,.35);border:1px solid rgba(255,215,0,.6)}
+.seat.vip{background:rgba(168,85,247,.4);border:1px solid rgba(168,85,247,.7)}
+.seat.empty{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.seat:hover{transform:scale(1.3);z-index:10}
+.seat-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* SHOWS */
+.shows-card{grid-column:span 2}
+.show-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.show-item{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.06);transition:.2s}
+.show-item:hover{border-color:var(--glass-border);background:rgba(255,215,0,.04)}
+.show-poster{width:38px;height:54px;border-radius:8px;object-fit:cover;background:linear-gradient(135deg,#1a0a2e,#3d1a6e);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.show-info{flex:1;min-width:0}
+.show-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.show-time{font-size:11px;color:var(--muted);margin-top:2px}
+.show-progress{height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;overflow:hidden}
+.show-progress-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.show-badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+.badge-live{background:rgba(220,20,60,.15);color:var(--red2);border:1px solid var(--red2)}
+.badge-soon{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid var(--gold)}
+.badge-full{background:rgba(168,85,247,.15);color:var(--purple2);border:1px solid var(--purple2)}
+
+/* ANALYTICS */
+.analytics-card{grid-column:span 2}
+#barChart{width:100%;height:140px;margin-top:14px}
+
+/* CUSTOMER INSIGHTS */
+.insights-card{grid-column:span 1}
+.donut-wrap{position:relative;width:90px;height:90px;margin:14px auto 8px}
+#donutChart{width:90px;height:90px}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.donut-center .val{font-size:18px;font-weight:800;font-family:'Orbitron',sans-serif;color:var(--gold)}
+.donut-center .lbl{font-size:9px;color:var(--muted)}
+.insight-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.insight-row{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.insight-row .lbl{color:var(--muted)}
+.insight-row .val{font-weight:600}
+
+/* ALERTS */
+.alerts-card{grid-column:span 1}
+.alert-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:10px;font-size:11px}
+.alert-item.warn{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2)}
+.alert-item.danger{background:rgba(220,20,60,.08);border:1px solid rgba(220,20,60,.2)}
+.alert-item.info{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)}
+.alert-icon{font-size:14px;margin-top:1px;flex-shrink:0}
+.alert-item.warn .alert-icon{color:var(--gold2)}
+.alert-item.danger .alert-icon{color:var(--red2)}
+.alert-item.info .alert-icon{color:var(--purple2)}
+.alert-text{color:var(--text);font-weight:500}
+.alert-sub{color:var(--muted);margin-top:2px;font-size:10px}
+
+/* STAFF */
+.staff-card{grid-column:span 2}
+.staff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.staff-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.06);transition:.2s;cursor:pointer}
+.staff-item:hover{border-color:var(--glass-border);transform:translateY(-2px)}
+.staff-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;position:relative}
+.staff-avatar .online{position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid var(--bg3)}
+.staff-name{font-size:11px;font-weight:600;text-align:center}
+.staff-role{font-size:10px;color:var(--muted);text-align:center}
+.staff-ring{width:36px;height:36px;position:relative;margin:0 auto}
+.staff-ring svg{transform:rotate(-90deg)}
+
+/* HEATMAP */
+.heatmap-card{grid-column:span 2}
+.heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:14px}
+.heatmap-col-label{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.heatmap-col-label span{font-size:9px;color:var(--muted);text-align:center}
+.heat-cell{height:20px;border-radius:3px;transition:.2s;cursor:pointer}
+.heat-cell:hover{transform:scale(1.2);z-index:10}
+
+/* GLOW ORBS BG */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb1{width:400px;height:400px;background:rgba(124,58,237,.08);top:-100px;right:100px}
+.orb2{width:300px;height:300px;background:rgba(255,215,0,.05);bottom:100px;left:200px}
+.orb3{width:250px;height:250px;background:rgba(220,20,60,.06);top:300px;right:300px}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">CC</div>
+  <div class="nav-item active" title=""><i class="fas fa-th-large"></i><span class="tooltip">Dashboard</span></div>
+  <div class="nav-item"><i class="fas fa-film"></i><span class="tooltip">Shows</span></div>
+  <div class="nav-item"><i class="fas fa-tv"></i><span class="tooltip">Screens</span></div>
+  <div class="nav-item"><i class="fas fa-ticket-alt"></i><span class="tooltip">Bookings</span></div>
+  <div class="nav-item"><i class="fas fa-chart-line"></i><span class="tooltip">Analytics</span></div>
+  <div class="nav-item"><i class="fas fa-users"></i><span class="tooltip">Staff</span></div>
+  <div class="sidebar-spacer"></div>
+  <div class="nav-item"><i class="fas fa-cog"></i><span class="tooltip">Settings</span></div>
+</nav>
+
+<!-- MAIN WRAP -->
+<div class="main-wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-title">CINECONTROL <span>THEATRE OWNER DASHBOARD</span></div>
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search shows, bookings..."/>
+    </div>
+    <div class="header-icon"><i class="fas fa-bell"></i><span class="badge"></span></div>
+    <div class="header-icon"><i class="fas fa-calendar-alt"></i></div>
+    <div class="avatar">AK</div>
+  </header>
+
+  <!-- CONTENT GRID -->
+  <div class="content">
+
+    <!-- METRIC CARDS -->
+    <div class="card metric-card">
+      <div class="metric-icon" style="background:rgba(255,215,0,.12);color:var(--gold)"><i class="fas fa-dollar-sign"></i></div>
+      <div class="metric-val" style="color:var(--gold)">$284.5K</div>
+      <div class="metric-label">Total Revenue</div>
+      <div class="metric-change up"><i class="fas fa-arrow-up"></i>+12.4% vs last month</div>
+      <div class="sparkline">
+        <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+          <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd700" stop-opacity=".4"/><stop offset="100%" stop-color="#ffd700" stop-opacity="0"/></linearGradient></defs>
+          <polyline fill="url(#sg1)" stroke="#ffd700" stroke-width="1.5" points="0,28 15,20 28,22 42,12 55,18 68,8 80,14 100,4"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon" style="background:rgba(168,85,247,.12);color:var(--purple2)"><i class="fas fa-ticket-alt"></i></div>
+      <div class="metric-val" style="color:var(--purple2)">12,847</div>
+      <div class="metric-label">Tickets Sold</div>
+      <div class="metric-change up"><i class="fas fa-arrow-up"></i>+8.1% this week</div>
+      <div class="sparkline">
+        <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+          <defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a855f7" stop-opacity=".4"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0"/></linearGradient></defs>
+          <polyline fill="url(#sg2)" stroke="#a855f7" stroke-width="1.5" points="0,24 15,18 28,26 42,10 55,16 68,6 80,12 100,8"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon" style="background:rgba(220,20,60,.12);color:var(--red2)"><i class="fas fa-chair"></i></div>
+      <div class="metric-val" style="color:var(--red2)">78.3%</div>
+      <div class="metric-label">Seat Occupancy</div>
+      <div class="metric-change up"><i class="fas fa-arrow-up"></i>+3.2% today</div>
+      <div class="sparkline">
+        <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+          <defs><linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff3366" stop-opacity=".4"/><stop offset="100%" stop-color="#ff3366" stop-opacity="0"/></linearGradient></defs>
+          <polyline fill="url(#sg3)" stroke="#ff3366" stroke-width="1.5" points="0,22 15,26 28,18 42,20 55,14 68,10 80,16 100,10"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card metric-card">
+      <div class="metric-icon" style="background:rgba(34,197,94,.12);color:#22c55e"><i class="fas fa-play-circle"></i></div>
+      <div class="metric-val" style="color:#22c55e">8</div>
+      <div class="metric-label">Active Shows</div>
+      <div class="metric-change down"><i class="fas fa-arrow-down"></i>-1 from yesterday</div>
+      <div class="sparkline">
+        <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+          <defs><linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e" stop-opacity=".4"/><stop offset="100%" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>
+          <polyline fill="url(#sg4)" stroke="#22c55e" stroke-width="1.5" points="0,10 15,14 28,10 42,10 55,16 68,12 80,6 100,14"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- REVENUE CHART -->
+    <div class="card revenue-card">
+      <div class="chart-header">
+        <div class="card-title"><i class="fas fa-chart-area"></i>Revenue Overview</div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'daily')">Daily</div>
+          <div class="tab" onclick="switchTab(this,'weekly')">Weekly</div>
+          <div class="tab" onclick="switchTab(this,'monthly')">Monthly</div>
+        </div>
+      </div>
+      <div class="chart-area"><canvas id="revenueChart"></canvas></div>
+    </div>
+
+    <!-- SEAT MAP -->
+    <div class="card seat-card">
+      <div class="chart-header">
+        <div class="card-title"><i class="fas fa-map-marked-alt"></i>Seat Occupancy – Screen 1</div>
+        <div style="font-size:11px;color:var(--muted)">Live · 6:30 PM Show</div>
+      </div>
+      <div class="seat-grid" id="seatGrid"></div>
+      <div class="seat-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,.5)"></div>Available</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,215,0,.5)"></div>Booked</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(168,85,247,.6)"></div>VIP</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,.08)"></div>Blocked</div>
+      </div>
+    </div>
+
+    <!-- ACTIVE SHOWS -->
+    <div class="card shows-card">
+      <div class="card-title"><i class="fas fa-film"></i>Active Shows</div>
+      <div class="show-list">
+        <div class="show-item">
+          <div class="show-poster">🎬</div>
+          <div class="show-info">
+            <div class="show-title">Dune: Part Three</div>
+            <div class="show-time"><i class="far fa-clock" style="margin-right:4px"></i>6:30 PM · Screen 1</div>
+            <div class="show-progress"><div class="show-progress-bar" style="width:88%"></div></div>
+          </div>
+          <div class="show-badge badge-live">LIVE</div>
+        </div>
+        <div class="show-item">
+          <div class="show-poster">🌌</div>
+          <div class="show-info">
+            <div class="show-title">Avatar: Meridian</div>
+            <div class="show-time"><i class="far fa-clock" style="margin-right:4px"></i>9:00 PM · Screen 2</div>
+            <div class="show-progress"><div class="show-progress-bar" style="width:62%;background:linear-gradient(90deg,var(--purple),var(--purple2))"></div></div>
+          </div>
+          <div class="show-badge badge-soon">SOON</div>
+        </div>
+        <div class="show-item">
+          <div class="show-poster">🦸</div>
+          <div class="show-info">
+            <div class="show-title">Avengers: Kang</div>
+            <div class="show-time"><i class="far fa-clock" style="margin-right:4px"></i>3:00 PM · Screen 3</div>
+            <div class="show-progress"><div class="show-progress-bar" style="width:100%;background:linear-gradient(90deg,var(--purple2),var(--red2))"></div></div>
+          </div>
+          <div class="show-badge badge-full">FULL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BAR CHART -->
+    <div class="card analytics-card">
+      <div class="chart-header">
+        <div class="card-title"><i class="fas fa-chart-bar"></i>Ticket Sales – This Week</div>
+        <div style="font-size:11px;color:var(--muted)">Apr 8–14, 2026</div>
+      </div>
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- CUSTOMER INSIGHTS -->
+    <div class="card insights-card">
+      <div class="card-title"><i class="fas fa-users"></i>Audience</div>
+      <div class="donut-wrap">
+        <canvas id="donutChart"></canvas>
+        <div class="donut-center"><div class="val">68%</div><div class="lbl">Return</div></div>
+      </div>
+      <div class="insight-list">
+        <div class="insight-row"><span class="lbl">18–24 yrs</span><span class="val" style="color:var(--gold)">34%</span></div>
+        <div class="insight-row"><span class="lbl">25–35 yrs</span><span class="val" style="color:var(--purple2)">41%</span></div>
+        <div class="insight-row"><span class="lbl">35+ yrs</span><span class="val" style="color:var(--red2)">25%</span></div>
+        <div class="insight-row" style="margin-top:4px"><span class="lbl">Avg Rating</span><span class="val">⭐ 4.7</span></div>
+        <div class="insight-row"><span class="lbl">Online Book</span><span class="val">82%</span></div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="card alerts-card">
+      <div class="card-title"><i class="fas fa-bell"></i>Alerts</div>
+      <div class="alert-list">
+        <div class="alert-item warn">
+          <i class="fas fa-exclamation-triangle alert-icon"></i>
+          <div><div class="alert-text">Low Occupancy – Screen 4</div><div class="alert-sub">Only 22% filled · 9:30 PM show</div></div>
+        </div>
+        <div class="alert-item danger">
+          <i class="fas fa-times-circle alert-icon"></i>
+          <div><div class="alert-text">Payment Gateway Lag</div><div class="alert-sub">+2.4s avg response · Check API</div></div>
+        </div>
+        <div class="alert-item info">
+          <i class="fas fa-info-circle alert-icon"></i>
+          <div><div class="alert-text">New Feature Unlocked</div><div class="alert-sub">Dynamic pricing now available</div></div>
+        </div>
+        <div class="alert-item warn">
+          <i class="fas fa-clock alert-icon"></i>
+          <div><div class="alert-text">Show Starts in 15 min</div><div class="alert-sub">Avatar · Screen 2 · 9:00 PM</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="card staff-card">
+      <div class="chart-header">
+        <div class="card-title"><i class="fas fa-id-badge"></i>Staff On Duty</div>
+        <div style="font-size:11px;color:#22c55e"><i class="fas fa-circle" style="font-size:8px"></i> 12 Active</div>
+      </div>
+      <div class="staff-grid">
+        <div class="staff-item">
+          <div class="staff-avatar" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">RK<div class="online"></div></div>
+          <div class="staff-name">Raj K.</div>
+          <div class="staff-role">Manager</div>
+          <div style="font-size:10px;color:var(--gold);margin-top:2px">98%</div>
+        </div>
+        <div class="staff-item">
+          <div class="staff-avatar" style="background:linear-gradient(135deg,#dc143c,#ff3366)">SP<div class="online"></div></div>
+          <div class="staff-name">Sara P.</div>
+          <div class="staff-role">Cashier</div>
+          <div style="font-size:10px;color:var(--gold);margin-top:2px">95%</div>
+        </div>
+        <div class="staff-item">
+          <div class="staff-avatar" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">AM</div>
+          <div class="staff-name">Arjun M.</div>
+          <div class="staff-role">Security</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">87%</div>
+        </div>
+        <div class="staff-item">
+          <div class="staff-avatar" style="background:linear-gradient(135deg,#22c55e,#4ade80)">NK<div class="online"></div></div>
+          <div class="staff-name">Nisha K.</div>
+          <div class="staff-role">Usher</div>
+          <div style="font-size:10px;color:var(--gold);margin-top:2px">92%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="card heatmap-card">
+      <div class="chart-header">
+        <div class="card-title"><i class="fas fa-fire"></i>Peak Booking Heatmap</div>
+        <div style="font-size:11px;color:var(--muted)">Hours vs Days</div>
+      </div>
+      <div class="heatmap-col-label" id="heatLabels"></div>
+      <div class="heatmap-grid" id="heatGrid"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ── Chart.js defaults ──
+Chart.defaults.color = 'rgba(240,240,255,0.5)';
+Chart.defaults.font.family = 'Inter';
+
+// ── Revenue Chart ──
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueGrad = revenueCtx.createLinearGradient(0,0,0,160);
+revenueGrad.addColorStop(0,'rgba(255,215,0,0.3)');
+revenueGrad.addColorStop(1,'rgba(255,215,0,0)');
+const purpleGrad = revenueCtx.createLinearGradient(0,0,0,160);
+purpleGrad.addColorStop(0,'rgba(168,85,247,0.3)');
+purpleGrad.addColorStop(1,'rgba(168,85,247,0)');
+
+const datasets = {
+  daily:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],data:[18400,22100,19800,27300,34200,41800,38600]},
+  weekly:{labels:['W1','W2','W3','W4'],data:[120000,145000,138000,168000]},
+  monthly:{labels:['Jan','Feb','Mar','Apr','May','Jun'],data:[210000,245000,198000,284500,0,0]}
+};
+
+const revenueChart = new Chart(revenueCtx,{
+  type:'line',
+  data:{
+    labels:datasets.daily.labels,
+    datasets:[{
+      label:'Revenue',data:datasets.daily.data,
+      borderColor:'#ffd700',borderWidth:2.5,
+      backgroundColor:revenueGrad,fill:true,tension:.45,
+      pointBackgroundColor:'#ffd700',pointRadius:4,pointHoverRadius:7,
+      pointBorderColor:'rgba(10,10,18,.8)',pointBorderWidth:2
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'rgba(10,10,18,.95)',borderColor:'rgba(255,215,0,.3)',borderWidth:1,
+      titleColor:'#ffd700',bodyColor:'rgba(240,240,255,.8)',padding:12,cornerRadius:10
+    }},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(240,240,255,.4)',font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(240,240,255,.4)',font:{size:10},callback:v=>'$'+v.toLocaleString()}}
+    }
+  }
+});
+
+function switchTab(el,period){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  revenueChart.data.labels=datasets[period].labels;
+  revenueChart.data.datasets[0].data=datasets[period].data;
+  revenueChart.update('active');
+}
+
+// ── Bar Chart ──
+const barCtx = document.getElementById('barChart').getContext('2d');
+const barGrad = barCtx.createLinearGradient(0,0,0,140);
+barGrad.addColorStop(0,'rgba(168,85,247,.9)');
+barGrad.addColorStop(1,'rgba(220,20,60,.6)');
+new Chart(barCtx,{
+  type:'bar',
+  data:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets:[{
+      label:'Tickets',data:[420,380,510,680,920,1340,1120],
+      backgroundColor:barGrad,borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'rgba(10,10,18,.95)',borderColor:'rgba(168,85,247,.3)',borderWidth:1,
+      titleColor:'#a855f7',bodyColor:'rgba(240,240,255,.8)',padding:10,cornerRadius:10
+    }},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(240,240,255,.4)',font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(240,240,255,.4)',font:{size:10}}}
+    }
+  }
+});
+
+// ── Donut Chart ──
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx,{
+  type:'doughnut',
+  data:{
+    labels:['Return','New'],
+    datasets:[{data:[68,32],backgroundColor:['#ffd700','rgba(255,255,255,.06)'],borderColor:['rgba(255,215,0,.6)','rgba(255,255,255,.08)'],borderWidth:1}]
+  },
+  options:{
+    responsive:false,cutout:'72%',
+    plugins:{legend:{display:false},tooltip:{enabled:false}}
+  }
+});
+
+// ── Seat Map ──
+const grid = document.getElementById('seatGrid');
+const rows = 8, cols = 16;
+const types = ['available','occupied','vip','empty'];
+const weights = [0.35,0.45,0.08,0.12];
+for(let r=0;r<rows;r++){
+  for(let c=0;c<cols;c++){
+    const div = document.createElement('div');
+    div.className='seat';
+    // VIP front rows
+    if(r>=6){div.classList.add('vip');}
+    else{
+      const rand=Math.random();
+      if(rand<0.45)div.classList.add('occupied');
+      else if(rand<0.75)div.classList.add('available');
+      else if(rand<0.85)div.classList.add('empty');
+      else div.classList.add('vip');
+    }
+    div.title=`Row ${String.fromCharCode(65+r)} Seat ${c+1}`;
+    div.addEventListener('click',function(){
+      if(this.classList.contains('available')){this.classList.replace('available','occupied');}
+    });
+    grid.appendChild(div);
+  }
+}
+
+// ── Heatmap ──
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const hours=['9AM','11AM','1PM','3PM','5PM','7PM','9PM','11PM'];
+const hlabels=document.getElementById('heatLabels');
+const hgrid=document.getElementById('heatGrid');
+days.forEach(d=>{const s=document.createElement('span');s.textContent=d;hlabels.appendChild(s);});
+const heatColors=['rgba(10,10,40,1)','rgba(40,10,60,1)','rgba(80,20,100,1)','rgba(120,40,80,1)','rgba(180,50,50,1)','rgba(220,100,20,1)','rgba(255,180,0,1)'];
+// For each hour row × 7 day cols
+hours.forEach((h,hi)=>{
+  days.forEach((d,di)=>{
+    const intensity=Math.random();
+    // peaks on weekends evenings
+    const base=(di>=4?0.3:0)+(hi>=4&&hi<=6?0.4:0)+Math.random()*0.3;
+    const idx=Math.min(6,Math.floor(Math.min(1,base)*7));
+    const cell=document.createElement('div');
+    cell.className='heat-cell';
+    cell.style.background=heatColors[idx];
+    cell.title=`${h} ${d}: ${Math.floor(base*100)}% peak`;
+    hgrid.appendChild(cell);
+  });
+});
+
+// ── Nav items ──
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',function(){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ── Subtle card float animation ──
+document.querySelectorAll('.card').forEach((card,i)=>{
+  const delay=i*0.15;
+  card.style.animation=`floatIn .6s ease ${delay}s both`;
+});
+const style=document.createElement('style');
+style.textContent=`@keyframes floatIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
